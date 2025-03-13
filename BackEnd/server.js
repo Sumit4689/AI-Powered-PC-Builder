@@ -11,6 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/register', require('./routes/registerRouter'));
+app.use('/login', require('./routes/loginRouter'));
 
 
 
