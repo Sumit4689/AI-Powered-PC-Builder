@@ -1,0 +1,25 @@
+:root {
+  /* Light mode - new color palette */
+  --primary: #2c3e50;
+  --accent: #e74c3c;
+  --accent-hover: #c0392b;
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --background: #ecf0f1;
+  --card-background: #ffffff;
+  --border-color: #bdc3c7;
+  --config-bg: #f5f6fa;
+}
+
+.dark {
+  /* Keep dark mode colors */
+  --primary: #102542;
+  --accent: #f87060;
+  --accent-hover: #f65e4a;
+  --text-primary: #ffffff;
+  --text-secondary: #a0aec0;
+  --background: #0a192f;
+  --card-background: #172a46;
+  --border-color: #1f2937;
+  --config-bg: #102542;
+}
