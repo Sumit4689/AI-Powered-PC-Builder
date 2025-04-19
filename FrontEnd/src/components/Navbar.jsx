@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, Sun, Moon } from "lucide-react";
+import UserMenu from './UserMenu';
 
-export default function Navbar({ isDarkMode, toggleTheme }) {
+export default function Navbar({ isDarkMode, toggleTheme, user, onLogout }) {
   const [mounted, setMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -62,9 +63,15 @@ export default function Navbar({ isDarkMode, toggleTheme }) {
               {mounted && isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            <Link to="/login" className="bg-[var(--accent)] hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition-all duration-300">
-              Login / Signup
-            </Link>
+            <div className="hidden md:block">
+              {user ? (
+                <UserMenu user={user} onLogout={onLogout} />
+              ) : (
+                <Link to="/login" className="bg-[var(--accent)] hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition-all duration-300">
+                  Login / Signup
+                </Link>
+              )}
+            </div>
           </div>
 
           <div className="md:hidden flex items-center">
@@ -112,13 +119,19 @@ export default function Navbar({ isDarkMode, toggleTheme }) {
             >
               Pricing
             </Link>
-            <Link
-              to="/login"
-              className="block px-3 py-2 rounded-md text-base font-medium bg-orange-500 text-white"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Login / Signup
-            </Link>
+            {user ? (
+              <div className="px-3 py-2">
+                <UserMenu user={user} onLogout={onLogout} />
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="block px-3 py-2 rounded-md text-base font-medium bg-orange-500 text-white"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Login / Signup
+              </Link>
+            )}
           </div>
         </div>
       )}

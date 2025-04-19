@@ -4,6 +4,7 @@ import LoginSignup from "./components/loginSignup"
 import LandingPage from "./components/landingPage"
 import './index.css'
 import './styles/theme.css'
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -31,16 +32,18 @@ function App() {
   }
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
-        <Route path="/login" element={<LoginSignup isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
-        <Route path="/how-it-works" element={<Navigate to="/" />} /> {/* Placeholder - create actual component later */}
-        <Route path="/features" element={<Navigate to="/" />} /> {/* Placeholder - create actual component later */}
-        <Route path="/pricing" element={<Navigate to="/" />} /> {/* Placeholder - create actual component later */}
-        <Route path="*" element={<Navigate to="/" />} /> {/* Handle 404 cases */}
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
+          <Route path="/login" element={<LoginSignup isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
+          <Route path="/how-it-works" element={<Navigate to="/" />} /> {/* Placeholder - create actual component later */}
+          <Route path="/features" element={<Navigate to="/" />} /> {/* Placeholder - create actual component later */}
+          <Route path="/pricing" element={<Navigate to="/" />} /> {/* Placeholder - create actual component later */}
+          <Route path="*" element={<Navigate to="/" />} /> {/* Handle 404 cases */}
+        </Routes>
+      </Router>
+    </AuthProvider>
   )
 }
 

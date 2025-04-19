@@ -1,20 +1,66 @@
-import Navbar from "./Navbar"
-
-import { useState } from "react"
+import { useState, useEffect } from "react";
+import Navbar from "./Navbar";
+import UserMenu from "./UserMenu";
 
 function LandingPage({ isDarkMode, toggleTheme }) {
+  const [user, setUser] = useState(null);
   const [budget, setBudget] = useState(1500);
   const [useCase, setUseCase] = useState('Gaming');
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    setUser(null);
+  };
 
   const handleStartBuilding = () => {
     console.log('Starting to build with budget:', budget, 'for use case:', useCase);
     // Add your build logic here
   };
 
+  const renderAuthSection = () => {
+    if (user) {
+      return (
+        <div className="flex flex-col items-center">
+          <div className="mt-4 text-center">
+            <h3 className="text-2xl font-bold text-center mb-2">Welcome back, {user.name}!</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              Access your saved builds and continue where you left off
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <h2 className="text-2xl font-bold text-center mb-2">Login to Access Your Builds</h2>
+        <p className="text-center text-gray-500 dark:text-gray-400 mb-6">
+          Sign in to save your custom PC configurations and access them from anywhere
+        </p>
+
+        <a
+          href="/login"
+          className="bg-[var(--accent)] hover:bg-[#f65e4a] text-white font-medium py-2 px-4 rounded-md transition-all duration-300 w-full block text-center mb-8"
+        >
+          Login / Sign Up
+        </a>
+      </>
+    );
+  };
+
   return (
     <main className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--primary)] dark:text-[var(--text-primary)] transition-colors duration-300">
-      <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+      <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} user={user} onLogout={handleLogout} />
 
       {/* Hero Section */}
       <section className="py-16 px-4 md:px-8 lg:px-16 flex flex-col items-center text-center">
@@ -59,7 +105,7 @@ function LandingPage({ isDarkMode, toggleTheme }) {
               <select
                 value={useCase}
                 onChange={(e) => setUseCase(e.target.value)}
-                className="border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 transition-all duration-300 bg-[var(--card-background)] appearance-none pr-8"
+                className="border cursor-pointer border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 transition-all duration-300 bg-[var(--card-background)] appearance-none pr-8"
               >
                 <option>Gaming</option>
                 <option>Video Editing</option>
@@ -163,7 +209,7 @@ function LandingPage({ isDarkMode, toggleTheme }) {
 
           <button
             onClick={handleStartBuilding}
-            className="bg-[var(--accent)] hover:bg-[#f65e4a] text-white font-medium py-2 px-4 rounded-md transition-all duration-300 w-full flex items-center justify-center gap-2"
+            className="bg-[var(--accent)] hover:bg-[#f65e4a] text-white font-medium py-2 px-4 rounded-md transition-all duration-300 w-full flex items-center justify-center gap-2 cursor-pointer"
           >
             <svg
               className="w-5 h-5"
@@ -203,14 +249,7 @@ function LandingPage({ isDarkMode, toggleTheme }) {
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold text-center mb-2">Login to Access Your Builds</h2>
-          <p className="text-center text-gray-500 dark:text-gray-400 mb-6">
-            Sign in to save your custom PC configurations and access them from anywhere
-          </p>
-
-          <a href="/login" className="bg-[var(--accent)] hover:bg-[#f65e4a] text-white font-medium py-2 px-4 rounded-md transition-all duration-300 w-full block text-center mb-8">
-            Login / Sign Up
-          </a>
+          {renderAuthSection()}
 
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-2">
             <h3 className="text-lg font-medium mb-4">Example Configuration</h3>
@@ -328,7 +367,7 @@ function LandingPage({ isDarkMode, toggleTheme }) {
         </div>
       </footer>
     </main>
-  )
+  );
 }
 
-export default LandingPage
+export default LandingPage;

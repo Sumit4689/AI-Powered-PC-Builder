@@ -1,25 +1,120 @@
-import Navbar from "./Navbar";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
 
 function LoginSignup({ isDarkMode, toggleTheme }) {
-  const [isLogin, setIsLogin] = useState(true)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [name, setName] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
+  const navigate = useNavigate();
+
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!isLogin) {
+      if (!name || name.length < 3) {
+        errors.name = "Name must be at least 3 characters long";
+      }
+    }
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    if (!password || password.length < 6) {
+      errors.password = "Password must be at least 6 characters long";
+    }
+
+    if (!password.match(/[A-Z]/)) {
+      errors.password = "Password must contain at least one uppercase letter";
+    }
+
+    if (!password.match(/[a-z]/)) {
+      errors.password = "Password must contain at least one lowercase letter";
+    }
+
+    if (!password.match(/[0-9]/)) {
+      errors.password = "Password must contain at least one number";
+    }
+
+    if (!password.match(/[!@#$%^&*]/)) {
+      errors.password = "Password must contain at least one special character";
+    }
+
+    return errors;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setValidationErrors({});
 
-    // // Simulate API call
-    // setTimeout(() => {
-    //   setLoading(false)
-    //   // In a real app, this would handle authentication
-    //   console.log("Form submitted:", { email, password, name: isLogin ? undefined : name })
-    //   router.push("/")
-    // }, 1500)
-  }
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const endpoint = isLogin ? '/login' : '/register';
+      const payload = isLogin 
+        ? { email, password }
+        : { name, email, password };
+
+      const response = await fetch(`http://localhost:11822${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (Array.isArray(data.message)) {
+          // Handle Zod validation errors
+          const errorMessage = data.message.map(err => err.message).join(', ');
+          throw new Error(errorMessage);
+        }
+        throw new Error(data.message || 'Something went wrong');
+      }
+
+      // Store token in localStorage
+      localStorage.setItem('token', data.token);
+      
+      // Store user data
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Redirect to landing page
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add error display in the form
+  const errorMessage = error && (
+    <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+      <p className="text-red-700">{error}</p>
+    </div>
+  );
+
+  // Add this after your existing error message display
+  const renderFieldError = (fieldName) => {
+    return validationErrors[fieldName] && (
+      <p className="text-red-500 text-sm mt-1">{validationErrors[fieldName]}</p>
+    );
+  };
 
   return (
     <main className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--primary)] dark:text-[var(--text-primary)]">
@@ -27,6 +122,7 @@ function LoginSignup({ isDarkMode, toggleTheme }) {
 
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="max-w-md w-full rounded-xl shadow-md p-6 bg-[var(--card-background)]" style={{ animation: "fadeIn 0.5s ease-in-out" }}>
+          {errorMessage}
           <div className="text-center mb-8">
             <svg
               className="w-12 h-12 text-[var(--accent)] mx-auto mb-4"
@@ -61,12 +157,13 @@ function LoginSignup({ isDarkMode, toggleTheme }) {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="border border-[var(--border-color)] dark:border-gray-700 rounded-md px-4 py-2 w-full 
+                  className={`border ${validationErrors.name ? 'border-red-500' : 'border-[var(--border-color)]'} dark:border-gray-700 rounded-md px-4 py-2 w-full 
                   focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-300 
-                  bg-[var(--card-background)] text-[var(--text-primary)] placeholder-[var(--text-secondary)]"
+                  bg-[var(--card-background)] text-[var(--text-primary)] placeholder-[var(--text-secondary)]`}
                   placeholder="John Doe"
                   required={!isLogin}
                 />
+                {renderFieldError('name')}
               </div>
             )}
 
@@ -79,12 +176,13 @@ function LoginSignup({ isDarkMode, toggleTheme }) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="border border-[var(--border-color)] dark:border-gray-700 rounded-md px-4 py-2 w-full 
+                className={`border ${validationErrors.email ? 'border-red-500' : 'border-[var(--border-color)]'} dark:border-gray-700 rounded-md px-4 py-2 w-full 
                 focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-300 
-                bg-[var(--card-background)] text-[var(--text-primary)] placeholder-[var(--text-secondary)]"
+                bg-[var(--card-background)] text-[var(--text-primary)] placeholder-[var(--text-secondary)]`}
                 placeholder="you@example.com"
                 required
               />
+              {renderFieldError('email')}
             </div>
 
             <div>
@@ -96,12 +194,13 @@ function LoginSignup({ isDarkMode, toggleTheme }) {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="border border-[var(--border-color)] dark:border-gray-700 rounded-md px-4 py-2 w-full 
+                className={`border ${validationErrors.password ? 'border-red-500' : 'border-[var(--border-color)]'} dark:border-gray-700 rounded-md px-4 py-2 w-full 
                 focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-300 
-                bg-[var(--card-background)] text-[var(--text-primary)] placeholder-[var(--text-secondary)]"
+                bg-[var(--card-background)] text-[var(--text-primary)] placeholder-[var(--text-secondary)]`}
                 placeholder="••••••••"
                 required
               />
+              {renderFieldError('password')}
             </div>
 
             {isLogin && (
@@ -112,9 +211,9 @@ function LoginSignup({ isDarkMode, toggleTheme }) {
               </div>
             )}
 
-            <button 
-              type="submit" 
-              className="bg-[#f87060] hover:bg-[#f87060] text-white font-medium py-2 px-4 rounded-md transition-all duration-300 w-full flex items-center justify-center" 
+            <button
+              type="submit"
+              className="bg-[#f87060] hover:bg-[#f87060] text-white font-medium py-2 px-4 rounded-md transition-all duration-300 w-full flex items-center justify-center cursor-pointer"
               disabled={loading}
             >
               {loading ? (
@@ -137,12 +236,12 @@ function LoginSignup({ isDarkMode, toggleTheme }) {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-500 dark:text-gray-400">
+            <p className="text-gray-500 dark:text-gray-400 ">
               {isLogin ? "Don't have an account?" : "Already have an account?"}
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
-                className="ml-1 text-[#f87060] hover:text-orange-600 hover:underline"
+                className="ml-1 text-[#f87060] hover:text-orange-600 hover:underline cursor-pointer"
               >
                 {isLogin ? "Sign up" : "Login"}
               </button>
@@ -153,10 +252,10 @@ function LoginSignup({ isDarkMode, toggleTheme }) {
             <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-4">Or continue with</p>
 
             <div className="grid grid-cols-2 gap-4">
-              <button 
+              <button
                 type="button"
                 className="flex items-center justify-center py-2 px-4 border border-[var(--border-color)] 
-rounded-md hover:bg-[var(--config-bg)] transition-colors text-[var(--text-primary)]"
+rounded-md hover:bg-[var(--config-bg)] transition-colors text-[var(--text-primary)] dark:border-gray-700 cursor-pointer"
                 onClick={() => console.log("Google sign-in clicked")}
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -180,10 +279,10 @@ rounded-md hover:bg-[var(--config-bg)] transition-colors text-[var(--text-primar
                 Google
               </button>
 
-              <button 
+              <button
                 type="button"
                 className="flex items-center justify-center py-2 px-4 border border-[var(--border-color)] 
-rounded-md hover:bg-[var(--config-bg)] transition-colors text-[var(--text-primary)]"
+rounded-md hover:bg-[var(--config-bg)] transition-colors text-[var(--text-primary)] dark:border-gray-700 cursor-pointer"
                 onClick={() => console.log("Facebook sign-in clicked")}
               >
                 <svg
