@@ -1,16 +1,24 @@
 import { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import UserMenu from "./UserMenu";
+import { useNavigate } from "react-router-dom";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 function LandingPage({ isDarkMode, toggleTheme }) {
   const [user, setUser] = useState(null);
   const [budget, setBudget] = useState(1500);
-  const [useCase, setUseCase] = useState('Gaming');
+  const [useCase, setUseCase] = useState("Gaming");
+  const [cpuBrand, setCpuBrand] = useState("No Preference");
+  const [gpuBrand, setGpuBrand] = useState("No Preference");
+  const [resolution, setResolution] = useState("HD(1080p)");
+  const [peripherals, setPeripherals] = useState([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is logged in
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem("user");
     if (userData) {
       setUser(JSON.parse(userData));
     }
@@ -22,9 +30,53 @@ function LandingPage({ isDarkMode, toggleTheme }) {
     setUser(null);
   };
 
-  const handleStartBuilding = () => {
-    console.log('Starting to build with budget:', budget, 'for use case:', useCase);
-    // Add your build logic here
+  const handleStartBuilding = async () => {
+    const payload = {
+      budget: parseInt(budget),
+      useCase,
+      cpuBrand,
+      gpuBrand,
+      resolution,
+      peripherals,
+    };
+
+    console.log("Payload:", payload);
+    
+    try {
+      // Show loading state
+      setIsLoading(true);
+      
+      const response = await fetch("http://localhost:11822/generateBuild", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem('token')}` // Add token if user is logged in
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Something went wrong");
+      }
+      
+      console.log("Build recommendation:", data);
+      // Navigate to results page with the data
+      navigate('/build-result', { state: { buildRecommendation: data } });
+    } catch (error) {
+      console.error("Error fetching recommendation:", error);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePeripheralChange = (e) => {
+    const { value, checked } = e.target;
+    setPeripherals((prev) =>
+      checked ? [...prev, value] : prev.filter((item) => item !== value)
+    );
   };
 
   const renderAuthSection = () => {
@@ -136,15 +188,36 @@ function LandingPage({ isDarkMode, toggleTheme }) {
                   <label className="font-medium block mb-2">Preferred CPU Brand</label>
                   <div className="flex gap-4">
                     <label className="flex items-center">
-                      <input type="radio" name="cpu" className="mr-2 accent-[var(--accent)]" defaultChecked />
+                      <input
+                        type="radio"
+                        name="cpu"
+                        value="No Preference"
+                        checked={cpuBrand === "No Preference"}
+                        onChange={(e) => setCpuBrand(e.target.value)}
+                        className="mr-2 accent-[var(--accent)]"
+                      />
                       <span>No Preference</span>
                     </label>
                     <label className="flex items-center">
-                      <input type="radio" name="cpu" className="mr-2 accent-[var(--accent)]" />
+                      <input
+                        type="radio"
+                        name="cpu"
+                        value="AMD"
+                        checked={cpuBrand === "AMD"}
+                        onChange={(e) => setCpuBrand(e.target.value)}
+                        className="mr-2 accent-[var(--accent)]"
+                      />
                       <span>AMD</span>
                     </label>
                     <label className="flex items-center">
-                      <input type="radio" name="cpu" className="mr-2 accent-[var(--accent)]" />
+                      <input
+                        type="radio"
+                        name="cpu"
+                        value="Intel"
+                        checked={cpuBrand === "Intel"}
+                        onChange={(e) => setCpuBrand(e.target.value)}
+                        className="mr-2 accent-[var(--accent)]"
+                      />
                       <span>Intel</span>
                     </label>
                   </div>
@@ -154,15 +227,36 @@ function LandingPage({ isDarkMode, toggleTheme }) {
                   <label className="font-medium block mb-2">Preferred GPU Brand</label>
                   <div className="flex gap-4">
                     <label className="flex items-center">
-                      <input type="radio" name="gpu" className="mr-2 accent-[var(--accent)]" defaultChecked />
+                      <input
+                        type="radio"
+                        name="gpu"
+                        value="No Preference"
+                        checked={gpuBrand === "No Preference"}
+                        onChange={(e) => setGpuBrand(e.target.value)}
+                        className="mr-2 accent-[var(--accent)]"
+                      />
                       <span>No Preference</span>
                     </label>
                     <label className="flex items-center">
-                      <input type="radio" name="gpu" className="mr-2 accent-[var(--accent)]" />
+                      <input
+                        type="radio"
+                        name="gpu"
+                        value="NVIDIA"
+                        checked={gpuBrand === "NVIDIA"}
+                        onChange={(e) => setGpuBrand(e.target.value)}
+                        className="mr-2 accent-[var(--accent)]"
+                      />
                       <span>NVIDIA</span>
                     </label>
                     <label className="flex items-center">
-                      <input type="radio" name="gpu" className="mr-2 accent-[var(--accent)]" />
+                      <input
+                        type="radio"
+                        name="gpu"
+                        value="AMD"
+                        checked={gpuBrand === "AMD"}
+                        onChange={(e) => setGpuBrand(e.target.value)}
+                        className="mr-2 accent-[var(--accent)]"
+                      />
                       <span>AMD</span>
                     </label>
                   </div>
@@ -172,15 +266,36 @@ function LandingPage({ isDarkMode, toggleTheme }) {
                   <label className="font-medium block mb-2">Resolution</label>
                   <div className="flex gap-4">
                     <label className="flex items-center">
-                      <input type="radio" name="resolution" className="mr-2 accent-[var(--accent)]" defaultChecked />
+                      <input
+                        type="radio"
+                        name="resolution"
+                        value="HD(1080p)"
+                        checked={resolution === "HD(1080p)"}
+                        onChange={(e) => setResolution(e.target.value)}
+                        className="mr-2 accent-[var(--accent)]"
+                      />
                       <span>HD(1080p)</span>
                     </label>
                     <label className="flex items-center">
-                      <input type="radio" name="resolution" className="mr-2 accent-[var(--accent)]" />
+                      <input
+                        type="radio"
+                        name="resolution"
+                        value="2K(1440p)"
+                        checked={resolution === "2K(1440p)"}
+                        onChange={(e) => setResolution(e.target.value)}
+                        className="mr-2 accent-[var(--accent)]"
+                      />
                       <span>2K(1440p)</span>
                     </label>
                     <label className="flex items-center">
-                      <input type="radio" name="resolution" className="mr-2 accent-[var(--accent)]" />
+                      <input
+                        type="radio"
+                        name="resolution"
+                        value="4K(2160p)"
+                        checked={resolution === "4K(2160p)"}
+                        onChange={(e) => setResolution(e.target.value)}
+                        className="mr-2 accent-[var(--accent)]"
+                      />
                       <span>4K(2160p)</span>
                     </label>
                   </div>
@@ -190,16 +305,31 @@ function LandingPage({ isDarkMode, toggleTheme }) {
                   <label className="font-medium block mb-2">Extra peripherals</label>
                   <div className="flex gap-4">
                     <label className="flex items-center">
-                      <input type="checkbox" name="peripherals" className="mr-2 accent-[var(--accent)]" />
+                      <input
+                        type="checkbox"
+                        value="Monitor"
+                        onChange={handlePeripheralChange}
+                        className="mr-2 accent-[var(--accent)]"
+                      />
                       <span>Monitor</span>
                     </label>
                     <label className="flex items-center">
-                      <input type="checkbox" name="peripherals" className="mr-2 accent-[var(--accent)]" />
+                      <input
+                        type="checkbox"
+                        value="Mouse"
+                        onChange={handlePeripheralChange}
+                        className="mr-2 accent-[var(--accent)]"
+                      />
                       <span>Mouse</span>
                     </label>
                     <label className="flex items-center">
-                      <input type="checkbox" name="peripherals" className="mr-2 accent-[var(--accent)]" />
-                      <span>Keboard</span>
+                      <input
+                        type="checkbox"
+                        value="Keyboard"
+                        onChange={handlePeripheralChange}
+                        className="mr-2 accent-[var(--accent)]"
+                      />
+                      <span>Keyboard</span>
                     </label>
                   </div>
                 </div>
@@ -222,6 +352,37 @@ function LandingPage({ isDarkMode, toggleTheme }) {
             </svg>
             Start Building
           </button>
+
+          {isLoading && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-[var(--card-background)] p-6 rounded-lg shadow-lg max-w-md w-full">
+                <div className="flex items-center justify-center">
+                  <div className="w-60 h-60">
+                    <DotLottieReact
+                      src="https://lottie.host/2260d59b-b870-4bb2-bf6e-b9248b753456/kzjbO0zpc9.json"
+                      loop
+                      autoplay
+                    />
+                  </div>
+                </div>
+                <h3 className="text-center text-xl font-bold mt-2 text-gray-800 dark:text-gray-200">
+                  Building Your PC
+                </h3>
+                <p className="text-center mt-2 text-gray-700 dark:text-gray-300">
+                  Our AI is analyzing thousands of components to create your perfect build...
+                </p>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mt-6 overflow-hidden">
+                  <div className="bg-[var(--accent)] h-2.5 rounded-full animate-progress"></div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="mt-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4">
+              <p className="text-red-700 dark:text-red-400">{error}</p>
+            </div>
+          )}
 
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
             Our AI will analyze thousands of components to find your perfect build

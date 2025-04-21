@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import LoginSignup from "./components/loginSignup"
 import LandingPage from "./components/landingPage"
+import BuildResult from "./components/BuildResult"
 import './index.css'
 import './styles/theme.css'
 import { AuthProvider } from './context/AuthContext';
@@ -37,6 +38,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
           <Route path="/login" element={<LoginSignup isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
+          <Route path="/build-result" element={<BuildResult isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
           <Route path="/how-it-works" element={<Navigate to="/" />} /> {/* Placeholder - create actual component later */}
           <Route path="/features" element={<Navigate to="/" />} /> {/* Placeholder - create actual component later */}
           <Route path="/pricing" element={<Navigate to="/" />} /> {/* Placeholder - create actual component later */}
