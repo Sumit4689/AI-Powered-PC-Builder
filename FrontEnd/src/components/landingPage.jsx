@@ -3,10 +3,11 @@ import Navbar from "./Navbar";
 import UserMenu from "./UserMenu";
 import { useNavigate } from "react-router-dom";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { useAuth } from '../context/AuthContext';
 
 function LandingPage({ isDarkMode, toggleTheme }) {
   const [user, setUser] = useState(null);
-  const [budget, setBudget] = useState(1500);
+  const [budget, setBudget] = useState(30000);
   const [useCase, setUseCase] = useState("Gaming");
   const [cpuBrand, setCpuBrand] = useState("No Preference");
   const [gpuBrand, setGpuBrand] = useState("No Preference");
@@ -15,6 +16,9 @@ function LandingPage({ isDarkMode, toggleTheme }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [savedBuilds, setSavedBuilds] = useState([]);
+  const [loadingBuilds, setLoadingBuilds] = useState(false);
+  const { user: authUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +27,45 @@ function LandingPage({ isDarkMode, toggleTheme }) {
       setUser(JSON.parse(userData));
     }
   }, []);
+
+  useEffect(() => {
+    const fetchSavedBuilds = async () => {
+      if (!authUser) return;
+      
+      try {
+        setLoadingBuilds(true);
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+    
+        const response = await fetch("http://localhost:11822/builds/user", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+    
+        const data = await response.json();
+    
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch saved builds");
+        }
+    
+        console.log('Fetched builds:', data);
+        setSavedBuilds(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error fetching saved builds:", error);
+        setError(error.message);
+        setSavedBuilds([]);
+      } finally {
+        setLoadingBuilds(false);
+      }
+    };
+    
+    fetchSavedBuilds();
+  }, [authUser]);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -40,17 +83,16 @@ function LandingPage({ isDarkMode, toggleTheme }) {
       peripherals,
     };
 
-    console.log("Payload:", payload);
+    console.log("Starting build with payload:", payload); // Log initial payload
     
     try {
-      // Show loading state
       setIsLoading(true);
       
       const response = await fetch("http://localhost:11822/generateBuild", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('token')}` // Add token if user is logged in
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(payload),
       });
@@ -61,9 +103,14 @@ function LandingPage({ isDarkMode, toggleTheme }) {
         throw new Error(data.message || "Something went wrong");
       }
       
-      console.log("Build recommendation:", data);
+      console.log("Build recommendation before navigation:", data); // Log data before navigation
       // Navigate to results page with the data
-      navigate('/build-result', { state: { buildRecommendation: data } });
+      navigate('/build-result', { 
+        state: { 
+          buildRecommendation: data,
+          useCase: useCase // Add useCase to state
+        } 
+      });
     } catch (error) {
       console.error("Error fetching recommendation:", error);
       setError(error.message);
@@ -79,15 +126,101 @@ function LandingPage({ isDarkMode, toggleTheme }) {
     );
   };
 
+  const viewSavedBuild = async (buildId) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`http://localhost:11822/builds/${buildId}`, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch build details");
+      }
+      
+      const buildData = await response.json();
+      navigate('/build-result', { state: { buildRecommendation: buildData } });
+    } catch (error) {
+      console.error("Error fetching build:", error);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const renderAuthSection = () => {
-    if (user) {
+    if (authUser) {
       return (
-        <div className="flex flex-col items-center">
-          <div className="mt-4 text-center">
-            <h3 className="text-2xl font-bold text-center mb-2">Welcome back, {user.name}!</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+        <div className="flex flex-col w-full">
+          <div className="text-center mb-4">
+            <h3 className="text-2xl font-bold mb-2">Welcome back, {authUser.name}!</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Access your saved builds and continue where you left off
             </p>
+          </div>
+          
+          <div className="mt-4">
+            <h4 className="text-lg font-medium mb-3">Your Saved Builds</h4>
+            
+            {loadingBuilds ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--accent)]"></div>
+              </div>
+            ) : savedBuilds.length > 0 ? (
+              <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
+                {savedBuilds.map((build) => (
+                  <div 
+                    key={build._id}
+                    className="bg-[var(--config-bg)] rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => viewSavedBuild(build._id)}
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <h5 className="font-bold text-[var(--text-primary)] truncate">{build.buildName}</h5>
+                      <span className="text-xs text-[var(--text-secondary)] whitespace-nowrap">
+                        ₹{build.totalCost.toLocaleString()} • {build.useCase || ''}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      {build.components
+                        .filter(c => ['CPU', 'GPU', 'RAM', 'Storage'].includes(c.type))
+                        .slice(0, 4)
+                        .map((component, idx) => (
+                          <div key={idx}>
+                            <p className="text-[var(--text-secondary)]">{component.type}:</p>
+                            <p className="font-medium text-[var(--text-primary)] truncate">{component.name}</p>
+                          </div>
+                        ))
+                      }
+                    </div>
+                    
+                    <div className="mt-2 text-xs text-[var(--text-secondary)] text-right">
+                      {new Date(build.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 bg-[var(--config-bg)] rounded-lg">
+                <svg 
+                  className="w-12 h-12 mx-auto text-gray-400 dark:text-gray-600" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth="1" 
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
+                </svg>
+                <p className="mt-2 text-gray-500 dark:text-gray-400">
+                  No saved builds yet. Start building to save your configurations.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       );
@@ -138,7 +271,7 @@ function LandingPage({ isDarkMode, toggleTheme }) {
             </div>
             <input
               type="range"
-              min="40000"
+              min="30000"
               max="500000"
               step="2000"
               value={budget}
@@ -146,7 +279,7 @@ function LandingPage({ isDarkMode, toggleTheme }) {
               className="w-full h-2 bg-gray-300 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[var(--accent)]"
             />
             <div className="flex justify-between mt-1 text-sm text-gray-500 dark:text-gray-400">
-              <span>₹40000</span>
+              <span>₹30000</span>
               <span>₹500000</span>
             </div>
           </div>
@@ -162,8 +295,15 @@ function LandingPage({ isDarkMode, toggleTheme }) {
                 <option>Gaming</option>
                 <option>Video Editing</option>
                 <option>3D Rendering</option>
-                <option>Office Work</option>
+                <option>Office & Productivity</option>
                 <option>Streaming</option>
+                <option>Programming & Development</option>
+                <option>Machine Learning & Data Science</option>
+                <option>Graphic Design</option>
+                <option>Internet Browsing & Social Media</option>
+                <option>Music Production</option>
+                <option>Virtual Reality</option>
+                <option>Cybersecurity & Ethical Hacking</option>
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
@@ -354,8 +494,8 @@ function LandingPage({ isDarkMode, toggleTheme }) {
           </button>
 
           {isLoading && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white dark:bg-[var(--card-background)] p-6 rounded-lg shadow-lg max-w-md w-full">
+            <div className="fixed inset-0 bg-[var(--card-background)] bg-opacity-50 flex items-center justify-center z-50 rounded-xl">
+              <div className="bg-white dark:bg-[var(--card-background)] p-6 rounded-lg  max-w-md w-full">
                 <div className="flex items-center justify-center">
                   <div className="w-60 h-60">
                     <DotLottieReact
@@ -412,7 +552,7 @@ function LandingPage({ isDarkMode, toggleTheme }) {
 
           {renderAuthSection()}
 
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-2">
+          {/* <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-2">
             <h3 className="text-lg font-medium mb-4">Example Configuration</h3>
 
             <div className="bg-[var(--config-bg)] rounded-lg p-4 mb-4 text-[var(--text-primary)]">
@@ -440,7 +580,7 @@ function LandingPage({ isDarkMode, toggleTheme }) {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 

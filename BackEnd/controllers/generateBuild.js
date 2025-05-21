@@ -60,7 +60,7 @@ const generateBuild = asyncHandler(async (req, res) => {
     1. Total build cost calculation
     2. Component selection rationale based on the use case
     3. Compatibility check confirming all parts work together
-    4. The names of 2-3 specific components that would benefit from video reviews (for YouTube search)
+    4. The names of important components that would benefit from video reviews (for YouTube search of famous reviewers)
 
     Format the response in JSON with the following structure:
     {
@@ -81,7 +81,7 @@ const generateBuild = asyncHandler(async (req, res) => {
     `;
 
     // Call Gemini API
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const textResponse = response.text();
@@ -117,7 +117,7 @@ const generateBuild = asyncHandler(async (req, res) => {
           const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
             params: {
               part: 'snippet',
-              maxResults: 2,
+              maxResults: 1,
               q: searchQuery,
               type: 'video',
               key: YOUTUBE_API_KEY
@@ -144,6 +144,15 @@ const generateBuild = asyncHandler(async (req, res) => {
     res.status(200).json(buildData);
   } catch (error) {
     console.error("Error generating build:", error);
+
+    // Handle API key errors
+    if (error.message.includes('API_KEY_INVALID')) {
+      console.error('API key is invalid or expired. Please renew the API key.');
+      return res.status(500).json({ 
+        message: 'API key is invalid or expired. Contact the administrator.' 
+      });
+    }
+
     res.status(500).json({
       message: 'Failed to generate PC build recommendation',
       error: error.message

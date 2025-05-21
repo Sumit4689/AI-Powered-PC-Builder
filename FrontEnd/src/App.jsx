@@ -3,9 +3,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import LoginSignup from "./components/loginSignup"
 import LandingPage from "./components/landingPage"
 import BuildResult from "./components/BuildResult"
+import SavedBuilds from "./components/SavedBuilds"
+import HowItWorks from './components/HowItWorks';
+import ProtectedRoute from "./components/ProtectedRoute"
 import './index.css'
 import './styles/theme.css'
 import { AuthProvider } from './context/AuthContext';
+import Profile from './components/Profile';
+import AdminDashboard from './components/AdminDashboard';
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -38,10 +43,31 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
           <Route path="/login" element={<LoginSignup isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
+          <Route 
+            path="/how-it-works" 
+            element={<HowItWorks isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} 
+          />
           <Route path="/build-result" element={<BuildResult isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
+          <Route 
+            path="/saved-builds" 
+            element={
+              <ProtectedRoute>
+                <SavedBuilds isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/how-it-works" element={<Navigate to="/" />} /> {/* Placeholder - create actual component later */}
           <Route path="/features" element={<Navigate to="/" />} /> {/* Placeholder - create actual component later */}
           <Route path="/pricing" element={<Navigate to="/" />} /> {/* Placeholder - create actual component later */}
+          <Route path="/profile" element={<Profile isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <AdminDashboard isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="*" element={<Navigate to="/" />} /> {/* Handle 404 cases */}
         </Routes>
       </Router>

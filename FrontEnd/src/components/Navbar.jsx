@@ -1,140 +1,230 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import UserMenu from './UserMenu';
 
-export default function Navbar({ isDarkMode, toggleTheme, user, onLogout }) {
-  const [mounted, setMounted] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+function Navbar({ isDarkMode, toggleTheme }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
-    <nav className="bg-[var(--card-background)] border-b border-gray-200 dark:border-[var(--primary)] sticky top-0 z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center">
-              <svg
-                className="w-6 h-6 text-[#f87060] mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
+    <header className="bg-[var(--card-background)] shadow-md py-4 px-4 md:px-8 lg:px-16 sticky top-0 z-40">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        {/* Logo and Brand */}
+        <Link to="/" className="flex items-center">
+          <svg
+            className="w-6 h-6 text-[var(--accent)] mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+            ></path>
+          </svg>
+          <span className="font-bold text-lg text-[var(--text-primary)]">AI-PC-Builder</span>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-8">
+          <Link to="/" className="text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors">
+            Home
+          </Link>
+          <Link to="/how-it-works" className="text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors">
+            How it Works
+          </Link>
+          {user && (
+            <Link to="/saved-builds" className="text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors">
+              Saved Builds
+            </Link>
+          )}
+          <button
+            onClick={toggleTheme}
+            className="relative inline-flex h-6 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+            style={{ backgroundColor: isDarkMode ? 'var(--primary, #1f2937)' : 'var(--background-secondary, #e5e7eb)' }}
+            aria-label="Toggle theme"
+          >
+            <span className="sr-only">Toggle dark mode</span>
+            <span 
+              className={`
+                pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out
+                ${isDarkMode ? 'translate-x-6' : 'translate-x-0'}
+              `}
+            >
+              {/* Sun icon */}
+              <span 
+                className={`
+                  absolute inset-0 flex h-full w-full items-center justify-center transition-opacity
+                  ${isDarkMode ? 'opacity-0' : 'opacity-100'}
+                `}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
-                ></path>
-              </svg>
-              <span className="font-bold text-[var(--text-primary)]">AI-Powered-PC-Builder</span>
-            </Link>
-          </div>
-
-          <div className="hidden md:flex items-center space-x-8">
+                <svg className="h-3 w-3 text-[var(--accent)]" fill="currentColor" viewBox="0 0 20 20">
+                  <circle cx="10" cy="10" r="5" />
+                </svg>
+              </span>
+              
+              {/* Moon icon */}
+              <span 
+                className={`
+                  absolute inset-0 flex h-full w-full items-center justify-center transition-opacity
+                  ${isDarkMode ? 'opacity-100' : 'opacity-0'}
+                `}
+              >
+                <svg className="h-3 w-3 text-[var(--accent)]" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                </svg>
+              </span>
+            </span>
+          </button>
+          
+          {user ? (
+            <UserMenu user={user} onLogout={handleLogout} />
+          ) : (
             <Link
-              to="/how-it-works"
-              className="text-[var(--primary)] dark:text-[var(--text-primary)] hover:text-orange-500 dark:hover:text-orange-500 transition-colors"
+              to="/login"
+              className="bg-[var(--accent)] hover:bg-[#f65e4a] text-white px-4 py-2 rounded-md transition-colors"
             >
-              How It Works
+              Login
             </Link>
-            <Link
-              to="/features"
-              className="text-[var(--primary)] dark:text-[var(--text-primary)] hover:text-orange-500 dark:hover:text-orange-500 transition-colors"
-            >
-              Features
-            </Link>
-            <Link
-              to="/pricing"
-              className="text-[var(--primary)] dark:text-[var(--text-primary)] hover:text-orange-500 dark:hover:text-orange-500 transition-colors"
-            >
-              Pricing
-            </Link>
+          )}
+        </nav>
 
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              aria-label="Toggle theme"
-            >
-              {mounted && isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-
-            <div className="hidden md:block">
-              {user ? (
-                <UserMenu user={user} onLogout={onLogout} />
-              ) : (
-                <Link to="/login" className="bg-[var(--accent)] hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition-all duration-300">
-                  Login / Signup
-                </Link>
-              )}
-            </div>
-          </div>
-
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={toggleTheme}
-              className="p-2 mr-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300"
-              aria-label="Toggle theme"
-            >
-              {mounted && isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-        </div>
+        {/* Mobile Navigation Toggle */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="md:hidden p-2 text-[var(--text-primary)] rounded-lg hover:bg-[var(--background-secondary)] transition-colors"
+          aria-label="Toggle menu"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {isMenuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            )}
+          </svg>
+        </button>
       </div>
 
-      {/* Mobile menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-[var(--background)] border-b border-gray-200 dark:border-[var(--primary)]" style={{ animation: "fadeIn 0.5s ease-in-out" }}>
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="md:hidden mt-4 bg-[var(--card-background)] border-t border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col p-4 space-y-4">
+            <Link
+              to="/"
+              className="text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Home
+            </Link>
             <Link
               to="/how-it-works"
-              className="block px-3 py-2 rounded-md text-base font-medium text-[var(--primary)] dark:text-[var(--text-primary)] hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => setMobileMenuOpen(false)}
+              className="text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+              onClick={() => setIsMenuOpen(false)}
             >
-              How It Works
+              How it Works
             </Link>
-            <Link
-              to="/features"
-              className="block px-3 py-2 rounded-md text-base font-medium text-[var(--primary)] dark:text-[var(--text-primary)] hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Features
-            </Link>
-            <Link
-              to="/pricing"
-              className="block px-3 py-2 rounded-md text-base font-medium text-[var(--primary)] dark:text-[var(--text-primary)] hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Pricing
-            </Link>
+            
+            {user && (
+              <Link
+                to="/saved-builds"
+                className="text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Saved Builds
+              </Link>
+            )}
+            
+            <div className="flex items-center justify-between">
+              <span className="text-[var(--text-primary)]">Dark Mode</span>
+              <button
+                onClick={toggleTheme}
+                className="relative inline-flex h-6 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                style={{ backgroundColor: isDarkMode ? 'var(--primary, #1f2937)' : 'var(--background-secondary, #e5e7eb)' }}
+                aria-label="Toggle theme"
+              >
+                <span className="sr-only">Toggle dark mode</span>
+                <span 
+                  className={`
+                    pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out
+                    ${isDarkMode ? 'translate-x-6' : 'translate-x-0'}
+                  `}
+                >
+                  {/* Sun icon */}
+                  <span 
+                    className={`
+                      absolute inset-0 flex h-full w-full items-center justify-center transition-opacity
+                      ${isDarkMode ? 'opacity-0' : 'opacity-100'}
+                    `}
+                  >
+                    <svg className="h-3 w-3 text-[var(--accent)]" fill="currentColor" viewBox="0 0 20 20">
+                      <circle cx="10" cy="10" r="5" />
+                    </svg>
+                  </span>
+                  
+                  {/* Moon icon */}
+                  <span 
+                    className={`
+                      absolute inset-0 flex h-full w-full items-center justify-center transition-opacity
+                      ${isDarkMode ? 'opacity-100' : 'opacity-0'}
+                    `}
+                  >
+                    <svg className="h-3 w-3 text-[var(--accent)]" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </div>
+            
             {user ? (
-              <div className="px-3 py-2">
-                <UserMenu user={user} onLogout={onLogout} />
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex flex-col space-y-2">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-[var(--accent)] rounded-full flex items-center justify-center text-white">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="font-medium text-[var(--text-primary)]">{user.name}</span>
+                </div>
+                <Link
+                  to="/profile"
+                  className="text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Profile
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-left text-red-500 hover:text-red-600 transition-colors"
+                >
+                  Logout
+                </button>
               </div>
             ) : (
               <Link
                 to="/login"
-                className="block px-3 py-2 rounded-md text-base font-medium bg-orange-500 text-white"
-                onClick={() => setMobileMenuOpen(false)}
+                className="bg-[var(--accent)] hover:bg-[#f65e4a] text-white px-4 py-2 rounded-md transition-colors inline-block text-center"
+                onClick={() => setIsMenuOpen(false)}
               >
-                Login / Signup
+                Login
               </Link>
             )}
           </div>
         </div>
       )}
-    </nav>
+    </header>
   );
 }
+
+export default Navbar;
