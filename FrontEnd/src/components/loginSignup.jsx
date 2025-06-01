@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import { useAuth } from '../context/AuthContext';  // Add this import
 
 function LoginSignup({ isDarkMode, toggleTheme }) {
+  // Add auth context
+  const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,6 +51,7 @@ function LoginSignup({ isDarkMode, toggleTheme }) {
     return errors;
   };
 
+  // Update the handleSubmit function
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -79,22 +83,24 @@ function LoginSignup({ isDarkMode, toggleTheme }) {
       const data = await response.json();
 
       if (!response.ok) {
-        if (Array.isArray(data.message)) {
-          // Handle Zod validation errors
-          const errorMessage = data.message.map(err => err.message).join(', ');
-          throw new Error(errorMessage);
-        }
         throw new Error(data.message || 'Something went wrong');
       }
 
-      // Store token in localStorage
-      localStorage.setItem('token', data.token);
-      
-      // Store user data
-      localStorage.setItem('user', JSON.stringify(data.user));
+      // Update auth context first
+      await login(data.user, data.token);
 
-      // Redirect to landing page
-      navigate('/');
+      // Log the user data to verify isAdmin status
+      console.log('User data:', data.user);
+
+      // Check admin status and redirect
+      if (data.user && data.user.isAdmin === true) {
+        console.log('Redirecting to admin dashboard...');
+        navigate('/admin', { replace: true });
+      } else {
+        console.log('Redirecting to home...');
+        navigate('/', { replace: true });
+      }
+
     } catch (err) {
       setError(err.message);
     } finally {

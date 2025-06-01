@@ -83,3 +83,26 @@ body {
 .delay-400 {
   animation-delay: 0.4s;
 }
+
+/* Add to your index.css or relevant stylesheet */
+@keyframes progress {
+  0% {
+    width: 5%;
+  }
+  50% {
+    width: 70%;
+  }
+  80% {
+    width: 85%;
+  }
+  95% {
+    width: 95%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-progress {
+  animation: progress 12s ease-in-out forwards;
+}

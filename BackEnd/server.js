@@ -21,6 +21,15 @@ app.use(cookieParser());
 
 app.use('/register', require('./routes/registerRouter'));
 app.use('/login', require('./routes/loginRouter'));
+app.use('/generateBuild', require('./routes/generateBuildRouter'));
+app.use('/builds', require('./routes/buildRouter'));
+app.use('/users', require('./routes/userRouter'));
+app.use(''/admin, require('./routes/adminRouter'));
+
+// Add a health check route
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'Server is running' });
+  });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
