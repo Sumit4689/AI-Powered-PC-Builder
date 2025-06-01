@@ -24,7 +24,7 @@ app.use('/login', require('./routes/loginRouter'));
 app.use('/generateBuild', require('./routes/generateBuildRouter'));
 app.use('/builds', require('./routes/buildRouter'));
 app.use('/users', require('./routes/userRouter'));
-app.use('/admin', require('./routes/adminRouter'));
+app.use(''/admin, require('./routes/adminRouter'));
 
 // Add a health check route
 app.get('/health', (req, res) => {
