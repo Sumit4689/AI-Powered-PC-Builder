@@ -1,0 +1,117 @@
+/* Benchmarks Component Styling */
+
+/* Chart container styling */
+.chart-container {
+    background: var(--card-background);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* D3 specific styling */
+.tooltip {
+    position: absolute;
+    display: none;
+    background-color: var(--card-background);
+    color: var(--text-primary);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+    z-index: 100;
+    max-width: 220px;
+    border: 1px solid var(--border-color);
+}
+
+/* Dark mode tooltip */
+.dark .tooltip {
+    background-color: var(--card-background);
+    border-color: var(--border-color);
+}
+
+/* Axis styling */
+.axis path,
+.axis line {
+    stroke: var(--border-color);
+}
+
+.axis text {
+    fill: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Animation for charts */
+.bar, .dot, .line {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Legend styling */
+.legend text {
+    font-size: 12px;
+    fill: var(--text-primary);
+}
+
+/* Chart title styling */
+.chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+/* Hover effects for chart elements */
+circle:hover, rect:hover {
+    cursor: pointer;
+    filter: brightness(1.1);
+}
+
+/* Responsive chart container */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 300px !important;
+    }
+}
+
+/* Custom scrollbar for benchmark list */
+.benchmark-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.benchmark-list::-webkit-scrollbar-track {
+    background: var(--background);
+    border-radius: 4px;
+}
+
+.benchmark-list::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 4px;
+    opacity: 0.7;
+}
+
+.benchmark-list::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-hover);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+/* Card hover effects */
+.benchmark-card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.btnCompare{
+    transform: translateY(12px);
+}
