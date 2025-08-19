@@ -197,35 +197,35 @@ Secure authentication system with:
 
 ## 🖥️ Screenshots
 
-### Home Page
-![Home Page](./screenshots/10.PNG)
+### SignUp Page
+![SignUp Page](./screenshots/10.PNG)
 
-### Build Generation
-![Build Generation](./screenshots/9.PNG)
+### Login Page
+![Login Page](./screenshots/9.PNG)
 
-### Build Results
-![Build Results](./screenshots/1.PNG)
+### Landing Page
+![Landing Page](./screenshots/1.PNG)
+(./screenshots/2.PNG)
 
-### User Dashboard
-![User Dashboard](./screenshots/2.PNG)
+### About Page
+![About Page](./screenshots/3.PNG)
 
-### Benchmark Visualization
-![Benchmark Visualization](./screenshots/3.PNG)
+### BenchMarks Page
+![BenchMarks Page](./screenshots/4.PNG)
+(./screenshots/5.PNG)
+(./screenshots/6.PNG)
 
-### Component Comparison
-![Component Comparison](./screenshots/4.PNG)
+### Saved Build Page
+![Saved Build](./screenshots/7.PNG)
 
-### Dark Mode Interface
-![Dark Mode Interface](./screenshots/5.PNG)
+### User Page
+![User Page](./screenshots/8.PNG)
 
-### User Profile
-![User Profile](./screenshots/6.PNG)
-
-### Admin Dashboard
-![Admin Dashboard](./screenshots/7.PNG)
-
-### Saved Builds
-![Saved Builds](./screenshots/8.PNG)
+### Build Result Page
+![Build Result Page](./screenshots/11.PNG)
+(./screenshots/12.PNG)
+(./screenshots/13.PNG)
+(./screenshots/14.PNG)
 
 ## 🤝 Contributing
 
