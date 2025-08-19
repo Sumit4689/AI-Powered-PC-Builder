@@ -205,15 +205,15 @@ Secure authentication system with:
 
 ### Landing Page
 ![Landing Page](./screenshots/1.PNG)
-(./screenshots/2.PNG)
+![Landing Page Additional](./screenshots/2.PNG)
 
 ### About Page
 ![About Page](./screenshots/3.PNG)
 
 ### BenchMarks Page
 ![BenchMarks Page](./screenshots/4.PNG)
-(./screenshots/5.PNG)
-(./screenshots/6.PNG)
+![BenchMarks Page Additional](./screenshots/5.PNG)
+![BenchMarks Page Features](./screenshots/6.PNG)
 
 ### Saved Build Page
 ![Saved Build](./screenshots/7.PNG)
@@ -223,9 +223,9 @@ Secure authentication system with:
 
 ### Build Result Page
 ![Build Result Page](./screenshots/11.PNG)
-(./screenshots/12.PNG)
-(./screenshots/13.PNG)
-(./screenshots/14.PNG)
+![Build Result Details](./screenshots/12.PNG)
+![Component Selection](./screenshots/13.PNG)
+![Final Configuration](./screenshots/14.PNG)
 
 ## 🤝 Contributing
 
