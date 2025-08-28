@@ -1,6 +1,13 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:11822/benchmarks';
+// Determine the API URL based on the environment
+const API_BASE_URL = import.meta.env.VITE_API_URL || (
+    import.meta.env.MODE === 'production' 
+        ? '/api' 
+        : 'http://localhost:11822'
+);
+
+const API_URL = `${API_BASE_URL}/benchmarks`;
 
 const BenchmarkService = {
   // Get all benchmarks with optional filters
