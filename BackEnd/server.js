@@ -4,21 +4,13 @@ const port = process.env.PORT || 11822;
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDb = require('./config/dbConnection');
-
-// Connect to database but handle errors gracefully for serverless environment
-try {
-    connectDb();
-} catch (error) {
-    console.error('Database connection error:', error);
-}
+connectDb();
 
 const app = express();
 
 // CORS configuration
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-        ? [process.env.FRONTEND_URL || 'https://ai-powered-pc-builder.vercel.app', 'https://ai-powered-pc-builder-frontend.vercel.app'] 
-        : 'http://localhost:5173',
+    origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
     optionsSuccessStatus: 200
@@ -38,24 +30,7 @@ app.use('/benchmarks', require('./routes/benchmarkRouter'));
 // Add a health check route
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'Server is running' });
-});
-
-// Add a root path handler
-app.get('/', (req, res) => {
-    res.status(200).json({ 
-        status: 'API is running',
-        message: 'Welcome to AI-Powered PC Builder API',
-        endpoints: {
-            register: '/register',
-            login: '/login',
-            generateBuild: '/generateBuild',
-            builds: '/builds',
-            users: '/users',
-            admin: '/admin',
-            benchmarks: '/benchmarks'
-        }
-    });
-});
+  });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -65,13 +40,7 @@ app.use((err, req, res, next) => {
     });
 });
 
-// For local development
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(port, () => {    
-        console.log(`Server is running on the port: ${port}`);
-        console.log(`http://localhost:${port}`);
-    });
-}
-
-// Export the app for Vercel
-module.exports = app;
+app.listen(port, () => {    
+    console.log(`Server is running on the port: ${port}`);
+    console.log(`http://localhost:${port}`);
+});
