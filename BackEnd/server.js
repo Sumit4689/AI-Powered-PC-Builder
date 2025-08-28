@@ -4,13 +4,14 @@ const port = process.env.PORT || 11822;
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDb = require('./config/dbConnection');
-connectDb();
 
 const app = express();
 
-// CORS configuration
+// CORS configuration - Allow both production and development URLs
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.NODE_ENV === 'production' 
+        ? [process.env.FRONTEND_URL || 'https://ai-powered-pc-builder.vercel.app', 'https://ai-powered-pc-builder-*.vercel.app'] 
+        : 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
     optionsSuccessStatus: 200
@@ -19,13 +20,16 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/register', require('./routes/registerRouter'));
-app.use('/login', require('./routes/loginRouter'));
-app.use('/generateBuild', require('./routes/generateBuildRouter'));
-app.use('/builds', require('./routes/buildRouter'));
-app.use('/users', require('./routes/userRouter'));
-app.use('/admin', require('./routes/adminRouter'));
-app.use('/benchmarks', require('./routes/benchmarkRouter'));
+// Prefix all API routes when in production
+const apiPrefix = process.env.NODE_ENV === 'production' ? '/api' : '';
+
+app.use(`${apiPrefix}/register`, require('./routes/registerRouter'));
+app.use(`${apiPrefix}/login`, require('./routes/loginRouter'));
+app.use(`${apiPrefix}/generateBuild`, require('./routes/generateBuildRouter'));
+app.use(`${apiPrefix}/builds`, require('./routes/buildRouter'));
+app.use(`${apiPrefix}/users`, require('./routes/userRouter'));
+app.use(`${apiPrefix}/admin`, require('./routes/adminRouter'));
+app.use(`${apiPrefix}/benchmarks`, require('./routes/benchmarkRouter'));
 
 // Add a health check route
 app.get('/health', (req, res) => {
@@ -40,7 +44,17 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(port, () => {    
-    console.log(`Server is running on the port: ${port}`);
-    console.log(`http://localhost:${port}`);
-});
+// Connect to database
+connectDb();
+
+// For Vercel deployment, export the app
+if (process.env.NODE_ENV === 'production') {
+    // Export app for Vercel serverless function
+    module.exports = app;
+} else {
+    // Start the server locally for development
+    app.listen(port, () => {    
+        console.log(`Server is running on the port: ${port}`);
+        console.log(`http://localhost:${port}`);
+    });
+}
