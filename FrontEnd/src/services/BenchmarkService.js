@@ -1,27 +1,21 @@
-import axios from 'axios';
+import api from './api';
 
-const API_URL = 'http://localhost:11822/benchmarks';
+const ENDPOINT = '/benchmarks';
 
 const BenchmarkService = {
   // Get all benchmarks with optional filters
   getBenchmarks: async (filters = {}) => {
     const { componentType, brand, sort, limit } = filters;
-    let url = API_URL;
     
     // Add query parameters
-    const params = new URLSearchParams();
-    if (componentType) params.append('componentType', componentType);
-    if (brand) params.append('brand', brand);
-    if (sort) params.append('sort', sort);
-    if (limit) params.append('limit', limit);
-    
-    const queryString = params.toString();
-    if (queryString) {
-      url += `?${queryString}`;
-    }
+    const params = {};
+    if (componentType) params.componentType = componentType;
+    if (brand) params.brand = brand;
+    if (sort) params.sort = sort;
+    if (limit) params.limit = limit;
     
     try {
-      const response = await axios.get(url);
+      const response = await api.get(ENDPOINT, { params });
       return response.data;
     } catch (error) {
       console.error('Error fetching benchmarks:', error);
@@ -32,7 +26,7 @@ const BenchmarkService = {
   // Get a specific benchmark by ID
   getBenchmarkById: async (id) => {
     try {
-      const response = await axios.get(`${API_URL}/${id}`);
+      const response = await api.get(`${ENDPOINT}/${id}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching benchmark ${id}:`, error);
@@ -43,7 +37,7 @@ const BenchmarkService = {
   // Compare multiple benchmarks
   compareBenchmarks: async (ids) => {
     try {
-      const response = await axios.post(`${API_URL}/compare`, { ids });
+      const response = await api.post(`${ENDPOINT}/compare`, { ids });
       return response.data;
     } catch (error) {
       console.error('Error comparing benchmarks:', error);
@@ -54,7 +48,7 @@ const BenchmarkService = {
   // Get all available component types
   getComponentTypes: async () => {
     try {
-      const response = await axios.get(`${API_URL}/types/all`);
+      const response = await api.get(`${ENDPOINT}/types/all`);
       return response.data;
     } catch (error) {
       console.error('Error fetching component types:', error);
@@ -65,7 +59,7 @@ const BenchmarkService = {
   // Get brands by component type
   getBrandsByType: async (componentType) => {
     try {
-      const response = await axios.get(`${API_URL}/brands/${componentType}`);
+      const response = await api.get(`${ENDPOINT}/brands/${componentType}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching brands for ${componentType}:`, error);

@@ -4,13 +4,21 @@ const port = process.env.PORT || 11822;
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDb = require('./config/dbConnection');
-connectDb();
+
+// Connect to database but handle errors gracefully for serverless environment
+try {
+    connectDb();
+} catch (error) {
+    console.error('Database connection error:', error);
+}
 
 const app = express();
 
 // CORS configuration
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.NODE_ENV === 'production' 
+        ? [process.env.FRONTEND_URL || 'https://ai-powered-pc-builder.vercel.app', 'https://ai-powered-pc-builder-frontend.vercel.app'] 
+        : 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
     optionsSuccessStatus: 200
@@ -40,7 +48,13 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(port, () => {    
-    console.log(`Server is running on the port: ${port}`);
-    console.log(`http://localhost:${port}`);
-});
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => {    
+        console.log(`Server is running on the port: ${port}`);
+        console.log(`http://localhost:${port}`);
+    });
+}
+
+// Export the app for Vercel
+module.exports = app;
