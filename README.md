@@ -58,6 +58,7 @@ A full-stack web application that helps users build customized PC configurations
 - Node.js (v18 or later)
 - MongoDB
 - npm or yarn
+- For deployment: Vercel account
 
 ### Backend Setup
 1. Navigate to the backend directory:
@@ -226,6 +227,21 @@ Secure authentication system with:
 ![Build Result Details](./screenshots/12.PNG)
 ![Component Selection](./screenshots/13.PNG)
 ![Final Configuration](./screenshots/14.PNG)
+
+## 🚀 Deployment
+
+### Vercel Deployment
+The application is set up for easy deployment with Vercel. For full deployment instructions, please refer to the [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) document.
+
+Quick deployment steps:
+1. Connect your repository to Vercel
+2. Deploy the Backend by configuring Vercel to use the `/BackEnd` directory
+3. Deploy the Frontend by configuring Vercel to use the `/FrontEnd` directory
+4. Set all required environment variables in the Vercel dashboard
+5. Run the deployment test script to verify your API is working:
+   ```bash
+   node BackEnd/utils/deploymentTest.js
+   ```
 
 ## 🤝 Contributing
 

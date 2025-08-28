@@ -38,7 +38,24 @@ app.use('/benchmarks', require('./routes/benchmarkRouter'));
 // Add a health check route
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'Server is running' });
-  });
+});
+
+// Add a root path handler
+app.get('/', (req, res) => {
+    res.status(200).json({ 
+        status: 'API is running',
+        message: 'Welcome to AI-Powered PC Builder API',
+        endpoints: {
+            register: '/register',
+            login: '/login',
+            generateBuild: '/generateBuild',
+            builds: '/builds',
+            users: '/users',
+            admin: '/admin',
+            benchmarks: '/benchmarks'
+        }
+    });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
