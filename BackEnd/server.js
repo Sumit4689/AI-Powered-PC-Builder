@@ -32,9 +32,14 @@ app.use(`${apiPrefix}/admin`, require('./routes/adminRouter'));
 app.use(`${apiPrefix}/benchmarks`, require('./routes/benchmarkRouter'));
 
 // Add a health check route
-app.get('/health', (req, res) => {
+app.get(`${apiPrefix}/health`, (req, res) => {
     res.status(200).json({ status: 'Server is running' });
-  });
+});
+
+// Add a root route for API verification
+app.get(`/api`, (req, res) => {
+    res.status(200).json({ message: 'API is working' });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
