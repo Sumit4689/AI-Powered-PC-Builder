@@ -3,25 +3,19 @@ const mongoose = require('mongoose');
 const connectDb = async () => {
     try {
         // Add connection options optimized for Render deployment
+        // Using only supported options in newer MongoDB versions
         const connect = await mongoose.connect(process.env.CONNECTION_STRING, {
-            // Connection options for better reliability in production environments
+            // Modern connection options for reliability
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
             family: 4, // Use IPv4, skip trying IPv6
-            // Auto reconnect if connection is lost
-            autoReconnect: true,
-            // Maintain up to 10 socket connections
-            poolSize: 10,
-            // Keep trying to send operations for 5 seconds
-            reconnectTries: 10,
-            // Wait 500ms between retries
-            reconnectInterval: 500,
-            // Maintain up to 5 connections in the connection pool
-            maxPoolSize: 5,
-            // If not connected, return errors immediately rather than waiting for reconnect
-            bufferMaxEntries: 0,
-            // Log queries if in development mode
-            debug: process.env.NODE_ENV !== 'production'
+            // Modern connection pool settings
+            maxPoolSize: 10,
+            minPoolSize: 1,
+            maxIdleTimeMS: 30000,
+            // Keep-alive settings
+            keepAlive: true,
+            keepAliveInitialDelay: 300000
         });
         
         console.log("Database connected : ", 

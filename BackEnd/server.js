@@ -9,35 +9,12 @@ const connectDb = require('./config/dbConnection');
 const app = express();
 
 // CORS configuration - Allow both production and development URLs
-const allowedOrigins = [
-    process.env.FRONTEND_URL || 'https://ai-powered-pc-builder.vercel.app', 
-    'https://ai-powered-pc-builder-*.vercel.app'
-];
-
-if (process.env.NODE_ENV !== 'production') {
-    allowedOrigins.push('http://localhost:5173');
-}
+const corsOrigin = process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL || 'https://ai-powered-pc-builder.vercel.app'] 
+    : ['http://localhost:5173'];
 
 app.use(cors({
-    origin: function(origin, callback) {
-        // Allow requests with no origin (like mobile apps, curl requests)
-        if (!origin) return callback(null, true);
-        
-        // Check if origin is allowed
-        if (allowedOrigins.some(allowedOrigin => {
-            // Handle wildcard domains
-            if (allowedOrigin.includes('*')) {
-                const pattern = new RegExp(allowedOrigin.replace('*', '.*'));
-                return pattern.test(origin);
-            }
-            return allowedOrigin === origin;
-        })) {
-            return callback(null, true);
-        }
-        
-        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-        return callback(new Error(msg), false);
-    },
+    origin: corsOrigin,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
     optionsSuccessStatus: 200
@@ -57,52 +34,25 @@ app.use(`${apiPrefix}/users`, require('./routes/userRouter'));
 app.use(`${apiPrefix}/admin`, require('./routes/adminRouter'));
 app.use(`${apiPrefix}/benchmarks`, require('./routes/benchmarkRouter'));
 
-// Add comprehensive health check routes
+// Add health check route for monitoring
 app.get(`${apiPrefix}/health`, async (req, res) => {
     try {
         // Check database connection
         const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-        
-        // Return detailed health information
         res.status(200).json({
             status: 'Server is running',
-            timestamp: new Date().toISOString(),
-            environment: process.env.NODE_ENV || 'development',
-            database: {
-                status: dbStatus,
-                name: mongoose.connection.name || 'unknown'
-            },
-            uptime: process.uptime() + ' seconds'
+            database: dbStatus
         });
     } catch (error) {
-        res.status(500).json({
-            status: 'error',
-            error: error.message
-        });
+        res.status(500).json({ status: 'error' });
     }
 });
 
-// Add a simple health check that returns 200 OK (for Render)
-app.get(`/health`, (req, res) => {
-    res.status(200).send('OK');
-});
-
-// Add a root route for API verification
-app.get(`/api`, (req, res) => {
-    res.status(200).json({ 
-        message: 'API is working',
-        version: '1.0.0',
-        documentation: '/api/docs',
-        health: '/api/health'
-    });
-});
-
-// Add a fallback route for the root path
+// Simple root route
 app.get('/', (req, res) => {
     res.status(200).json({
         message: 'AI Powered PC Builder API',
-        api: '/api',
-        health: '/api/health'
+        endpoints: '/api'
     });
 });
 
