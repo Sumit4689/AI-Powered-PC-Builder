@@ -1,0 +1,23 @@
+# render.yaml configuration for Render.com deployment
+services:
+  - type: web
+    name: ai-powered-pc-builder-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 10000  # Render assigns a port automatically, but we can specify a fallback
+      - key: NODE_ENV
+        value: production
+      - key: CONNECTION_STRING
+        sync: false  # This must be set manually in the Render dashboard
+      - key: JWT_SECRET
+        sync: false  # This must be set manually in the Render dashboard
+      - key: FRONTEND_URL
+        value: https://ai-powered-pc-builder.vercel.app  # Update with your actual frontend URL
+      - key: GOOGLE_API_KEY
+        sync: false  # This must be set manually in the Render dashboard

@@ -19,6 +19,10 @@ lerna-debug.log*
 *.key
 **/config/secrets.js
 **/credentials.json
+**/google-credentials.json
+**/serviceAccountKey.json
+**/.env.render
+**/.env.vercel
 
 # Build outputs
 dist/
@@ -181,6 +185,15 @@ dist/
 
 # Local development
 .local
+
+# Deployment
+.vercel/
+.vercel
+**/.vercel/
+.render/
+**/.render/
+.netlify/
+**/.netlify/
 
 # Package manager lock files (optional - remove if you want to track them)
 # package-lock.json

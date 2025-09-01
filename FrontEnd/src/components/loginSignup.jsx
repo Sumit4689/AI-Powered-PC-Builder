@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
-import { useAuth } from '../context/AuthContext';  // Add this import
+import { useAuth } from '../context/AuthContext';
+import UserService from '../services/UserService';
 
 function LoginSignup({ isDarkMode, toggleTheme }) {
   // Add auth context
@@ -66,25 +67,16 @@ function LoginSignup({ isDarkMode, toggleTheme }) {
     }
 
     try {
-      const endpoint = isLogin ? '/login' : '/register';
       const payload = isLogin 
         ? { email, password }
         : { name, email, password };
-
-      const response = await fetch(`http://localhost:11822${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-        credentials: 'include'
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
-      }
+      
+      // Use the appropriate service method based on login or register
+      const data = isLogin 
+        ? await UserService.login(payload) 
+        : await UserService.register(payload);
+      
+      // The error handling is now done in the service layer
 
       // Update auth context first
       await login(data.user, data.token);

@@ -2,7 +2,10 @@
 node_modules/
 .env
 .env.local
+.env.development
+.env.test
 .env.production
+.env.*.local
 logs/
 *.log
 npm-debug.log*
@@ -19,3 +22,14 @@ coverage/
 .temp
 uploads/
 *.db
+
+# Render specific
+.render/
+*.sqlite3
+.dump
+*.dump
+dump.rdb
+
+# Serverless specific
+.serverless/
+.webpack/

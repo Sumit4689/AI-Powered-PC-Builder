@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import SavedBuildCard from './SavedBuildCard';
 import { useAuth } from '../context/AuthContext';
+import BuildService from '../services/BuildService';
 
 function SavedBuilds({ isDarkMode, toggleTheme }) {
   const [builds, setBuilds] = useState([]);
@@ -24,19 +25,8 @@ function SavedBuilds({ isDarkMode, toggleTheme }) {
           throw new Error('No authentication token found');
         }
 
-        const response = await fetch('http://localhost:11822/builds/user', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to fetch builds');
-        }
-
-        const data = await response.json();
+        // Use the BuildService to fetch user builds
+        const data = await BuildService.getUserBuilds();
         setBuilds(data);
       } catch (err) {
         console.error('Error fetching builds:', err);

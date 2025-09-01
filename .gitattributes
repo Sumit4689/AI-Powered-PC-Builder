@@ -1,0 +1,55 @@
+# Set default behavior to automatically normalize line endings
+* text=auto eol=lf
+
+# Explicitly declare text files to be normalized
+*.js text
+*.jsx text
+*.ts text
+*.tsx text
+*.json text
+*.md text
+*.css text
+*.scss text
+*.html text
+*.svg text
+*.yml text
+*.yaml text
+
+# Denote all files that are truly binary and should not be modified
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.ttf binary
+*.otf binary
+*.mp4 binary
+*.webm binary
+*.mp3 binary
+*.wav binary
+*.ogg binary
+*.flac binary
+
+# Specific files that should have different settings
+*.sh text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Files that should keep their original line endings
+.gitattributes -text
+.gitignore -text
+
+# Markdown files should preserve their formatting
+*.md text
+
+# Config files
+*.json text
+*.lock text
+
+# Don't perform diff on these files
+package-lock.json -diff
+yarn.lock -diff
