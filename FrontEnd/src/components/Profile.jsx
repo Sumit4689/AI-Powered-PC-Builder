@@ -19,7 +19,7 @@ function Profile({ isDarkMode, toggleTheme }) {
     setSuccessMessage('');
 
     try {
-      const response = await fetch('http://localhost:11822/users/update', {
+      const response = await fetch('https://ai-powered-pc-builder.onrender.com/users/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -52,7 +52,7 @@ function Profile({ isDarkMode, toggleTheme }) {
   const handleDeleteAccount = async () => {
     if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
       try {
-        const response = await fetch('http://localhost:11822/users/delete', {
+        const response = await fetch('https://ai-powered-pc-builder.onrender.com/users/delete', {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`

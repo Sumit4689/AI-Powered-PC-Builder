@@ -105,7 +105,7 @@ function BuildResult({ isDarkMode, toggleTheme }) {
 
       console.log("Saving build with payload:", payload); // Log save payload
 
-      const response = await fetch("http://localhost:11822/builds/save", {
+      const response = await fetch("https://ai-powered-pc-builder.onrender.com/builds/save", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

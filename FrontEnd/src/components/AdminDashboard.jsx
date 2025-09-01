@@ -36,8 +36,8 @@ function AdminDashboard({ isDarkMode, toggleTheme }) {
             };
 
             const [usersRes, buildsRes] = await Promise.all([
-                fetch('http://localhost:11822/admin/users', { headers }),
-                fetch('http://localhost:11822/admin/builds', { headers })
+                fetch('https://ai-powered-pc-builder.onrender.com/admin/users', { headers }),
+                fetch('https://ai-powered-pc-builder.onrender.com/admin/builds', { headers })
             ]);
 
             if (!usersRes.ok || !buildsRes.ok) {
@@ -63,7 +63,7 @@ function AdminDashboard({ isDarkMode, toggleTheme }) {
     const handleDeleteUser = async (userId) => {
         if (window.confirm('Are you sure? This will delete the user and all their builds.')) {
             try {
-                const res = await fetch(`http://localhost:11822/admin/users/${userId}`, {
+                const res = await fetch(`https://ai-powered-pc-builder.onrender.com/admin/users/${userId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -81,7 +81,7 @@ function AdminDashboard({ isDarkMode, toggleTheme }) {
     const handleDeleteBuild = async (buildId) => {
         if (window.confirm('Are you sure you want to delete this build?')) {
             try {
-                const res = await fetch(`http://localhost:11822/admin/builds/${buildId}`, {
+                const res = await fetch(`https://ai-powered-pc-builder.onrender.com/admin/builds/${buildId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`

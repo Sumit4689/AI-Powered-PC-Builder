@@ -7,7 +7,7 @@ function SavedBuildCard({ build, onDelete }) {
 
   const viewBuild = async () => {
     try {
-      const response = await fetch(`http://localhost:11822/builds/${build._id}`, {
+      const response = await fetch(`https://ai-powered-pc-builder.onrender.com/builds/${build._id}`, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem('token')}`
         }
@@ -32,7 +32,7 @@ function SavedBuildCard({ build, onDelete }) {
 
     try {
       setDeleting(true);
-      const response = await fetch(`http://localhost:11822/builds/${build._id}`, {
+      const response = await fetch(`https://ai-powered-pc-builder.onrender.com/builds/${build._id}`, {
         method: 'DELETE',
         headers: {
           "Authorization": `Bearer ${localStorage.getItem('token')}`

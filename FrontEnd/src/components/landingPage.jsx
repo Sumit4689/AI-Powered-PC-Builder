@@ -40,7 +40,7 @@ function LandingPage({ isDarkMode, toggleTheme }) {
           throw new Error('No authentication token found');
         }
     
-        const response = await fetch("http://localhost:11822/builds/user", {
+        const response = await fetch("https://ai-powered-pc-builder.onrender.com/builds/user", {
           headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json"
@@ -86,7 +86,7 @@ function LandingPage({ isDarkMode, toggleTheme }) {
     try {
       setIsLoading(true);
       
-      const response = await fetch("http://localhost:11822/generateBuild", {
+      const response = await fetch("https://ai-powered-pc-builder.onrender.com/generateBuild", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +126,7 @@ function LandingPage({ isDarkMode, toggleTheme }) {
   const viewSavedBuild = async (buildId) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:11822/builds/${buildId}`, {
+      const response = await fetch(`https://ai-powered-pc-builder.onrender.com/builds/${buildId}`, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem('token')}`
         }
