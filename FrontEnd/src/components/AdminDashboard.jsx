@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from './Navbar';
+import AdminService from '../services/AdminService';
 
 function AdminDashboard({ isDarkMode, toggleTheme }) {
     const [users, setUsers] = useState([]);
@@ -30,28 +31,18 @@ function AdminDashboard({ isDarkMode, toggleTheme }) {
                 throw new Error('No authentication token found');
             }
 
-            const headers = {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            };
-
-            const [usersRes, buildsRes] = await Promise.all([
-                fetch('https://ai-powered-pc-builder.onrender.com/admin/users', { headers }),
-                fetch('https://ai-powered-pc-builder.onrender.com/admin/builds', { headers })
-            ]);
-
-            if (!usersRes.ok || !buildsRes.ok) {
-                const errorData = await (usersRes.ok ? buildsRes : usersRes).json();
-                throw new Error(errorData.message || 'Failed to fetch data');
+            try {
+                // Use AdminService instead of direct fetch calls
+                const [usersData, buildsData] = await Promise.all([
+                    AdminService.getAllUsers(),
+                    AdminService.getAllBuilds()
+                ]);
+                
+                setUsers(usersData);
+                setBuilds(buildsData);
+            } catch (apiError) {
+                throw new Error(apiError.message || 'Failed to fetch data');
             }
-
-            const [usersData, buildsData] = await Promise.all([
-                usersRes.json(),
-                buildsRes.json()
-            ]);
-
-            setUsers(usersData);
-            setBuilds(buildsData);
         } catch (err) {
             setError(err.message);
             console.error('Error fetching admin data:', err);
@@ -63,14 +54,8 @@ function AdminDashboard({ isDarkMode, toggleTheme }) {
     const handleDeleteUser = async (userId) => {
         if (window.confirm('Are you sure? This will delete the user and all their builds.')) {
             try {
-                const res = await fetch(`https://ai-powered-pc-builder.onrender.com/admin/users/${userId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (!res.ok) throw new Error('Failed to delete user');
+                // Use AdminService instead of direct fetch
+                await AdminService.deleteUser(userId);
                 fetchData(); // Refresh data
             } catch (err) {
                 setError(err.message);
@@ -81,14 +66,8 @@ function AdminDashboard({ isDarkMode, toggleTheme }) {
     const handleDeleteBuild = async (buildId) => {
         if (window.confirm('Are you sure you want to delete this build?')) {
             try {
-                const res = await fetch(`https://ai-powered-pc-builder.onrender.com/admin/builds/${buildId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (!res.ok) throw new Error('Failed to delete build');
+                // Use AdminService instead of direct fetch
+                await AdminService.deleteBuild(buildId);
                 fetchData(); // Refresh data
             } catch (err) {
                 setError(err.message);

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
+import UserService from '../services/UserService';
 
 function Profile({ isDarkMode, toggleTheme }) {
   const { user, updateUserProfile, logout } = useAuth();
@@ -19,20 +20,8 @@ function Profile({ isDarkMode, toggleTheme }) {
     setSuccessMessage('');
 
     try {
-      const response = await fetch('https://ai-powered-pc-builder.onrender.com/users/update', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ name })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to update profile');
-      }
+      // Use UserService instead of direct fetch
+      const data = await UserService.updateProfile({ name });
 
       // Update both context and local state
       updateUserProfile({ name });
@@ -52,17 +41,9 @@ function Profile({ isDarkMode, toggleTheme }) {
   const handleDeleteAccount = async () => {
     if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
       try {
-        const response = await fetch('https://ai-powered-pc-builder.onrender.com/users/delete', {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to delete account');
-        }
-
+        // Use UserService instead of direct fetch
+        await UserService.deleteAccount();
+        
         logout();
         navigate('/');
       } catch (err) {

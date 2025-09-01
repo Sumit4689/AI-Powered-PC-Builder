@@ -4,7 +4,7 @@ const BuildService = {
   // Get user builds
   getUserBuilds: async () => {
     try {
-      return await get('/builds/user');
+      return await get('/api/builds/user');
     } catch (error) {
       console.error('Error fetching user builds:', error);
       throw error;
@@ -14,7 +14,7 @@ const BuildService = {
   // Get a specific build by ID
   getBuildById: async (buildId) => {
     try {
-      return await get(`/builds/${buildId}`);
+      return await get(`/api/builds/${buildId}`);
     } catch (error) {
       console.error(`Error fetching build ${buildId}:`, error);
       throw error;
@@ -24,7 +24,7 @@ const BuildService = {
   // Save a build
   saveBuild: async (buildData) => {
     try {
-      return await post('/builds/save', buildData);
+      return await post('/api/builds/save', buildData);
     } catch (error) {
       console.error('Error saving build:', error);
       throw error;
@@ -34,7 +34,7 @@ const BuildService = {
   // Delete a build
   deleteBuild: async (buildId) => {
     try {
-      return await del(`/builds/${buildId}`);
+      return await del(`/api/builds/${buildId}`);
     } catch (error) {
       console.error(`Error deleting build ${buildId}:`, error);
       throw error;
@@ -44,7 +44,7 @@ const BuildService = {
   // Generate a build based on user requirements
   generateBuild: async (requirements) => {
     try {
-      return await post('/generateBuild', requirements);
+      return await post('/api/generateBuild', requirements);
     } catch (error) {
       console.error('Error generating build:', error);
       throw error;

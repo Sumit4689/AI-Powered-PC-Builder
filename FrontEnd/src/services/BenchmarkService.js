@@ -1,7 +1,7 @@
 import { get, post } from './api';
 
 // Endpoint for benchmark operations
-const BENCHMARK_ENDPOINT = '/benchmarks';
+const BENCHMARK_ENDPOINT = '/api/benchmarks';
 
 const BenchmarkService = {
   // Get all benchmarks with optional filters

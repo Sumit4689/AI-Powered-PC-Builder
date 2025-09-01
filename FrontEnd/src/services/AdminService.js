@@ -4,7 +4,7 @@ const AdminService = {
   // Get all users
   getAllUsers: async () => {
     try {
-      return await get('/admin/users');
+      return await get('/api/admin/users');
     } catch (error) {
       console.error('Error fetching users:', error);
       throw error;
@@ -14,7 +14,7 @@ const AdminService = {
   // Get all builds
   getAllBuilds: async () => {
     try {
-      return await get('/admin/builds');
+      return await get('/api/admin/builds');
     } catch (error) {
       console.error('Error fetching builds:', error);
       throw error;
@@ -24,7 +24,7 @@ const AdminService = {
   // Delete a user
   deleteUser: async (userId) => {
     try {
-      return await del(`/admin/users/${userId}`);
+      return await del(`/api/admin/users/${userId}`);
     } catch (error) {
       console.error(`Error deleting user ${userId}:`, error);
       throw error;
@@ -34,7 +34,7 @@ const AdminService = {
   // Delete a build
   deleteBuild: async (buildId) => {
     try {
-      return await del(`/admin/builds/${buildId}`);
+      return await del(`/api/admin/builds/${buildId}`);
     } catch (error) {
       console.error(`Error deleting build ${buildId}:`, error);
       throw error;

@@ -4,6 +4,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Navbar from './Navbar';
 import { useAuth } from '../context/AuthContext'; // Import auth context
+import BuildService from '../services/BuildService'; // Import BuildService
 
 function BuildResult({ isDarkMode, toggleTheme }) {
   const { user } = useAuth(); // Get user from auth context
@@ -105,21 +106,9 @@ function BuildResult({ isDarkMode, toggleTheme }) {
 
       console.log("Saving build with payload:", payload); // Log save payload
 
-      const response = await fetch("https://ai-powered-pc-builder.onrender.com/builds/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await response.json();
+      // Use BuildService instead of direct fetch
+      const data = await BuildService.saveBuild(payload);
       console.log("Save response:", data); // Log save response
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to save build");
-      }
 
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);

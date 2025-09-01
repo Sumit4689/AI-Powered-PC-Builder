@@ -17,15 +17,20 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || (
  * @returns {Promise} - Promise resolving to the JSON response
  */
 export const fetchApi = async (endpoint, options = {}) => {
-  // Add '/api' prefix in production environment
-  const apiPrefix = import.meta.env.PROD ? '/api' : '';
-  const url = `${API_BASE_URL}${apiPrefix}${endpoint}`;
+  // API prefix is already included in the endpoint parameter in each service
+  const url = `${API_BASE_URL}${endpoint}`;
   
   // Default headers
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
   };
+  
+  // Add auth token if available
+  const token = localStorage.getItem('token');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
 
   const config = {
     ...options,

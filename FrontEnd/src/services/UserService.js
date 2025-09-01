@@ -4,7 +4,7 @@ const UserService = {
   // Login user
   login: async (credentials) => {
     try {
-      return await post('/login', credentials);
+      return await post('/api/login', credentials);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -14,7 +14,7 @@ const UserService = {
   // Register user
   register: async (userData) => {
     try {
-      return await post('/register', userData);
+      return await post('/api/register', userData);
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
@@ -24,7 +24,7 @@ const UserService = {
   // Update user profile
   updateProfile: async (userData) => {
     try {
-      return await put('/users/update', userData);
+      return await put('/api/users/update', userData);
     } catch (error) {
       console.error('Profile update error:', error);
       throw error;
@@ -34,7 +34,7 @@ const UserService = {
   // Delete user account
   deleteAccount: async () => {
     try {
-      return await del('/users/delete');
+      return await del('/api/users/delete');
     } catch (error) {
       console.error('Account deletion error:', error);
       throw error;

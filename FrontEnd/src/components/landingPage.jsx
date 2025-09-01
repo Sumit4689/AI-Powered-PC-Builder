@@ -4,6 +4,7 @@ import UserMenu from "./UserMenu";
 import { useNavigate } from "react-router-dom";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { useAuth } from '../context/AuthContext';
+import BuildService from '../services/BuildService';
 
 function LandingPage({ isDarkMode, toggleTheme }) {
   const [user, setUser] = useState(null);
@@ -40,18 +41,8 @@ function LandingPage({ isDarkMode, toggleTheme }) {
           throw new Error('No authentication token found');
         }
     
-        const response = await fetch("https://ai-powered-pc-builder.onrender.com/builds/user", {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        });
-    
-        const data = await response.json();
-    
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to fetch saved builds");
-        }
+        // Use BuildService instead of direct fetch
+        const data = await BuildService.getUserBuilds();
     
         setSavedBuilds(Array.isArray(data) ? data : []);
       } catch (error) {
@@ -82,24 +73,11 @@ function LandingPage({ isDarkMode, toggleTheme }) {
       peripherals,
     };
 
-    
     try {
       setIsLoading(true);
       
-      const response = await fetch("https://ai-powered-pc-builder.onrender.com/generateBuild", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(payload),
-      });
-  
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || "Something went wrong");
-      }
+      // Use BuildService for generateBuild API call
+      const data = await BuildService.generateBuild(payload);
       
       // Navigate to results page with the data
       navigate('/build-result', { 
@@ -126,17 +104,10 @@ function LandingPage({ isDarkMode, toggleTheme }) {
   const viewSavedBuild = async (buildId) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`https://ai-powered-pc-builder.onrender.com/builds/${buildId}`, {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem('token')}`
-        }
-      });
       
-      if (!response.ok) {
-        throw new Error("Failed to fetch build details");
-      }
+      // Use BuildService for getting build by ID
+      const buildData = await BuildService.getBuildById(buildId);
       
-      const buildData = await response.json();
       navigate('/build-result', { state: { buildRecommendation: buildData } });
     } catch (error) {
       console.error("Error fetching build:", error);

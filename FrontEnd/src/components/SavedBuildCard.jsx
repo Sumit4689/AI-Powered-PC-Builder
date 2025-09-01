@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BuildService from '../services/BuildService';
 
 function SavedBuildCard({ build, onDelete }) {
   const [deleting, setDeleting] = useState(false);
@@ -7,17 +8,8 @@ function SavedBuildCard({ build, onDelete }) {
 
   const viewBuild = async () => {
     try {
-      const response = await fetch(`https://ai-powered-pc-builder.onrender.com/builds/${build._id}`, {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error("Failed to fetch build details");
-      }
-      
-      const buildData = await response.json();
+      // Use BuildService instead of direct fetch
+      const buildData = await BuildService.getBuildById(build._id);
       navigate('/build-result', { state: { buildRecommendation: buildData } });
     } catch (error) {
       console.error("Error fetching build details:", error);
@@ -32,17 +24,8 @@ function SavedBuildCard({ build, onDelete }) {
 
     try {
       setDeleting(true);
-      const response = await fetch(`https://ai-powered-pc-builder.onrender.com/builds/${build._id}`, {
-        method: 'DELETE',
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete build");
-      }
-
+      // Use BuildService instead of direct fetch
+      await BuildService.deleteBuild(build._id);
       if (onDelete) onDelete(build._id);
     } catch (error) {
       console.error("Error deleting build:", error);
