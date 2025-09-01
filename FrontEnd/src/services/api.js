@@ -6,7 +6,7 @@
 // Determine the API URL based on the environment
 export const API_BASE_URL = import.meta.env.VITE_API_URL || (
   import.meta.env.PROD 
-    ? 'https://your-render-app.onrender.com' // This should be updated with your Render deployment URL
+    ? 'https://ai-powered-pc-builder.onrender.com' // Default production URL
     : 'http://localhost:11822'
 );
 
@@ -17,7 +17,9 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || (
  * @returns {Promise} - Promise resolving to the JSON response
  */
 export const fetchApi = async (endpoint, options = {}) => {
-  const url = `${API_BASE_URL}${endpoint}`;
+  // Add '/api' prefix in production environment
+  const apiPrefix = import.meta.env.PROD ? '/api' : '';
+  const url = `${API_BASE_URL}${apiPrefix}${endpoint}`;
   
   // Default headers
   const headers = {

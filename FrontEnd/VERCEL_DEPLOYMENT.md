@@ -67,12 +67,23 @@ app.use(cors({
 2. Test authentication flows
 3. Verify that all features are working as expected
 
+### Step 6: Important API Path Configuration
+The backend adds an `/api` prefix to all routes in production mode. This is already handled in the frontend API service, which automatically adds the `/api` prefix to all endpoints when in production mode.
+
+Example:
+- Development: `http://localhost:11822/login`
+- Production: `https://ai-powered-pc-builder.onrender.com/api/login`
+
 ## Troubleshooting
 
 ### API Connection Issues
 - Check CORS configuration on your backend
 - Verify environment variables are properly set in Vercel
 - Check browser console for network errors
+- If you see 404 errors, make sure the API paths are correctly configured:
+  - Backend adds `/api` prefix in production
+  - Frontend should include this prefix in production requests
+  - Check `src/services/api.js` to ensure the prefix is added correctly
 
 ### 404 Errors on Page Refresh
 - Confirm that `vercel.json` is properly configured with rewrites
