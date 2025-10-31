@@ -136,7 +136,13 @@ function Navbar({ isDarkMode, toggleTheme }) {
             >
               How it Works
             </Link>
-            
+            <Link
+              to="/benchmarks"
+              className="text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+            >
+              Benchmarks
+            </Link>
+
             {user && (
               <Link
                 to="/saved-builds"
