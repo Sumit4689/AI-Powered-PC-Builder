@@ -12,6 +12,7 @@ import { AuthProvider } from './context/AuthContext';
 import Profile from './components/Profile';
 import AdminDashboard from './components/AdminDashboard';
 import Benchmarks from './components/Benchmarks';
+import ChatBot from "./components/ChatBot"
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -72,6 +73,9 @@ function App() {
           />
           <Route path="*" element={<Navigate to="/" />} /> {/* Handle 404 cases */}
         </Routes>
+        
+        {/* ChatBot available on all pages */}
+        <ChatBot isDarkMode={isDarkMode} />
       </Router>
     </AuthProvider>
   )
