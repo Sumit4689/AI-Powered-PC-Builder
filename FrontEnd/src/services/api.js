@@ -9,6 +9,7 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || (
     ? 'https://ai-powered-pc-builder.onrender.com' // Default production URL
     : 'http://localhost:11822'
 );
+console.log(API_BASE_URL)
 
 /**
  * Make a fetch request with the specified options

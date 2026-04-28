@@ -253,7 +253,7 @@ function ChatBot({ isDarkMode }) {
             )}
 
             {/* Mobile Responsive Styles */}
-            <style jsx>{`
+            <style>{`
                 @media (max-width: 640px) {
                     .fixed.bottom-24.right-6 {
                         width: calc(100vw - 2rem);
