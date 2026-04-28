@@ -115,8 +115,11 @@ const generateBuild = asyncHandler(async (req, res) => {
       });
     }
     let buildData;
+    // Try to extract JSON from the response using regex (handles markdown, extra text, etc)
+    let jsonMatch = textResponse.match(/```json\s*([\s\S]*?)```/) || textResponse.match(/({[\s\S]*})/);
+    let jsonString = jsonMatch && jsonMatch[1] ? jsonMatch[1] : (jsonMatch ? jsonMatch[0] : textResponse);
     try {
-      buildData = JSON.parse(textResponse);
+      buildData = JSON.parse(jsonString);
     } catch (error) {
       console.error("Failed to parse JSON response:", error);
       return res.status(500).json({
