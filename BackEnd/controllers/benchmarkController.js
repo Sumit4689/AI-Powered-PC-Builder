@@ -110,7 +110,8 @@ exports.compareBenchmarks = async (req, res) => {
 exports.getComponentTypes = async (req, res) => {
     try {
         const types = await Benchmark.distinct('componentType');
-        
+        console.log(types)
+
         res.status(200).json({
             success: true,
             data: types

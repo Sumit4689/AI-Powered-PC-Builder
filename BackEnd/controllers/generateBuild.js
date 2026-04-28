@@ -1,10 +1,10 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+// const OpenRouter = require('@openrouter/sdk').default;
 const axios = require('axios');
 const asyncHandler = require('express-async-handler');
 require('dotenv').config();
 
-// Initialize Gemini API
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// No OpenRouter SDK client needed; using direct HTTP API
 
 // Initialize YouTube API
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
@@ -19,11 +19,11 @@ const generateBuild = asyncHandler(async (req, res) => {
     }
 
     // Format peripherals for the prompt
-    const peripheralsText = peripherals.length > 0 
+    const peripheralsText = Array.isArray(peripherals) && peripherals.length > 0
       ? `Additionally, include these peripherals in the budget: ${peripherals.join(', ')}.`
       : '';
 
-    // Create a detailed prompt for Gemini
+    // Create a detailed prompt for OpenRouter
     const prompt = `
     I need a PC build recommendation with the following requirements:
     
@@ -46,9 +46,9 @@ const generateBuild = asyncHandler(async (req, res) => {
     6. Power Supply (with wattage, rating, and price)
     7. Case (with model and price)
     8. CPU Cooler (if needed, with price)
-    ${peripherals.includes('Monitor') ? '9. Monitor (with size, resolution, and price)' : ''}
-    ${peripherals.includes('Keyboard') ? '10. Keyboard (with type and price)' : ''}
-    ${peripherals.includes('Mouse') ? '11. Mouse (with type and price)' : ''}
+    ${Array.isArray(peripherals) && peripherals.includes('Monitor') ? '9. Monitor (with size, resolution, and price)' : ''}
+    ${Array.isArray(peripherals) && peripherals.includes('Keyboard') ? '10. Keyboard (with type and price)' : ''}
+    ${Array.isArray(peripherals) && peripherals.includes('Mouse') ? '11. Mouse (with type and price)' : ''}
 
     For each component, please provide:
     1. Full name and model
@@ -80,76 +80,94 @@ const generateBuild = asyncHandler(async (req, res) => {
     }
     `;
 
-    // Call Gemini API
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const textResponse = response.text();
+    // Call OpenRouter via HTTP API
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        model: "openrouter/free",
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert PC builder. Return ONLY valid JSON."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ]
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
-    // Extract JSON from response
-    const jsonMatch = textResponse.match(/```json\n([\s\S]*?)\n```/) || 
-                      textResponse.match(/({[\s\S]*})/) ||
-                      null;
-                      
+    // Debug: log the response structure
+    // console.log(response.data);
+    const textResponse = response?.data?.choices?.[0]?.message?.content;
+    if (!textResponse) {
+      console.error("Bad API response:", response.data);
+      return res.status(500).json({
+        message: "Invalid response from AI",
+        raw: response.data
+      });
+    }
     let buildData;
     try {
-      if (jsonMatch && jsonMatch[1]) {
-        buildData = JSON.parse(jsonMatch[1]);
-      } else if (jsonMatch) {
-        buildData = JSON.parse(jsonMatch[0]);
-      } else {
-        // As a fallback, try to parse the entire response
-        buildData = JSON.parse(textResponse);
-      }
+      buildData = JSON.parse(textResponse);
     } catch (error) {
       console.error("Failed to parse JSON response:", error);
-      return res.status(500).json({ 
+      return res.status(500).json({
         message: 'Failed to parse AI response',
         rawResponse: textResponse
       });
     }
 
     // Fetch YouTube videos for review components
-    const youtubeData = await Promise.all(
-      buildData.reviewComponents.map(async (component) => {
-        try {
-          const searchQuery = `${component} review`;
-          const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
-            params: {
-              part: 'snippet',
-              maxResults: 1,
-              q: searchQuery,
-              type: 'video',
-              key: YOUTUBE_API_KEY
-            }
-          });
+    if (buildData.reviewComponents && Array.isArray(buildData.reviewComponents)) {
+      const youtubeData = await Promise.all(
+        buildData.reviewComponents.map(async (component) => {
+          try {
+            const searchQuery = `${component} review`;
+            const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+              params: {
+                part: 'snippet',
+                maxResults: 1,
+                q: searchQuery,
+                type: 'video',
+                key: YOUTUBE_API_KEY
+              }
+            });
 
-          return response.data.items.map(item => ({
-            title: item.snippet.title,
-            description: item.snippet.description,
-            thumbnail: item.snippet.thumbnails.medium.url,
-            videoId: item.id.videoId,
-            component
-          }));
-        } catch (error) {
-          console.error(`Failed to fetch YouTube videos for ${component}:`, error);
-          return [];
-        }
-      })
-    );
-
-    // Flatten the array of arrays and add to the response
-    buildData.youtubeReviews = youtubeData.flat();
+            return response.data.items.map(item => ({
+              title: item.snippet.title,
+              description: item.snippet.description,
+              thumbnail: item.snippet.thumbnails.medium.url,
+              videoId: item.id.videoId,
+              component
+            }));
+          } catch (error) {
+            console.error(`Failed to fetch YouTube videos for ${component}:`, error);
+            return [];
+          }
+        })
+      );
+      buildData.youtubeReviews = youtubeData.flat();
+    } else {
+      buildData.youtubeReviews = [];
+    }
 
     res.status(200).json(buildData);
   } catch (error) {
     console.error("Error generating build:", error);
 
     // Handle API key errors
-    if (error.message.includes('API_KEY_INVALID')) {
+    if (error.message && error.message.includes('API_KEY_INVALID')) {
       console.error('API key is invalid or expired. Please renew the API key.');
-      return res.status(500).json({ 
-        message: 'API key is invalid or expired. Contact the administrator.' 
+      return res.status(500).json({
+        message: 'API key is invalid or expired. Contact the administrator.'
       });
     }
 

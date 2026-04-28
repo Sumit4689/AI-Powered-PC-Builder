@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Prefix all API routes when in production
-const apiPrefix = process.env.NODE_ENV === 'production' ? '/api' : '';
+const apiPrefix = '/api';
 
 app.use(`${apiPrefix}/register`, require('./routes/registerRouter'));
 app.use(`${apiPrefix}/login`, require('./routes/loginRouter'));
